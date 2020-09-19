@@ -1,0 +1,48 @@
+# Description File for Histogram Shifting Based Data embedding
+
+Libraries used:
+Numpy
+openCV
+math
+matplotlib
+
+median-HS and mode-HS are the files corresponding to median based and mode based embedding
+
+The functions used are:
+1. starterFunction
+2. modeify/ medianify
+3. HistogramShift
+4. reverseHS
+5. turnToOriginal
+6. dataToBitArray
+7. imgToBitArray
+8. Psnr
+
+From the sender's side:
+
+The main function starts with calling of the 1. starterFunction where we read the cover image "test.tiff" as grayscale and also take the value of data and n as inputs
+
+Then the cover image is sent to modify/ medianify which subdivides into non-overlapping blocks of size 2n+1 x 2n+1 and the corresponding values (median of the block or mode of the block) are subtracted and appended to the bitStream(which is to be embedded)
+
+The mode subtracted matrix is then sent to the 3. HistogramShift function in which Histogram shifting based data embedding of the bitStream is done
+
+The image so obtained is then sent over the network along with the values of the peak-bin and the zero-bin
+
+From the receiver's side:
+
+The image, peak-bin, zero-bin are given to the 4. reverseHS function as input with which we reverse the process of Histogram Shifting to obtain the bitstream having data and other additional information (modes/medians)
+
+Then the modulated image is sent to 5. turnToOriginal function which in turn extracts the original cover image and the data with the help of the previously obtained bitStream.
+
+the Psnr function is used to calculate PSNR value (Peak Signal to Noise Ratio)
+
+Major Variables:
+step is the size of the sub-division blocks (step = 2n+1)
+i.e. non-overlapping blocks are of size step x step (i.e. (2n+1)x(2n+1))
+bitStream is the payload bitstream consisting of data to be transfered and values of modes, zero-bin locations, etc.
+originalImage = np.array(originalImage, dtype = np.int16)
+pixelIntensities is a hash table storing the number of pixels per pixel intensity value
+breakers are the explicitely reserved bit-sequences which are used to denote the 
+breakpoints for various types of embedded bits (i.e. data, modes, minindexes, etc.)
+
+In the end, 4 images are displayed using the openCV library, original image, image with mode/median subtracted, mode/median subtracted image with data embedded and the finally recieved image.
